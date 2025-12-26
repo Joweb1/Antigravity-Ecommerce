@@ -3,6 +3,8 @@ FROM composer:2.7 as composer
 
 WORKDIR /app
 
+ENV COMPOSER_MEMORY_LIMIT=-1
+
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
