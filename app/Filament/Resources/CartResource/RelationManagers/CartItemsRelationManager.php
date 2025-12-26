@@ -2,11 +2,21 @@
 
 namespace App\Filament\Resources\CartResource\RelationManagers;
 
-use Filament\Forms; // Added
-use Filament\Forms\Form; // Added
-use Filament\Resources\RelationManagers\RelationManager; // Added
-use Filament\Tables\Table; // Added
+use App\Models\Product;
+use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables; // Updated or confirmed
+use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\CreateAction; // Added
+use Filament\Tables\Actions\EditAction;   // Added
+use Filament\Tables\Actions\DeleteAction; // Added
+use Filament\Tables\Actions\BulkActionGroup; // Added
+use Filament\Tables\Actions\DeleteBulkAction; // Added
+
 
 class CartItemsRelationManager extends RelationManager
 {
@@ -16,7 +26,15 @@ class CartItemsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                // No form fields as this is a read-only view of cart items
+                Select::make('product_id')
+                    ->relationship('product', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
+                TextInput::make('quantity')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1),
             ]);
     }
 
@@ -31,18 +49,29 @@ class CartItemsRelationManager extends RelationManager
                 TextColumn::make('quantity')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('unit_price') // Added: display individual item price
+                    ->getStateUsing(fn ($record) => $record->product->price / 100) // Access price from product
+                    ->money()
+                    ->label('Unit Price'),
+                TextColumn::make('subtotal') // Added: display subtotal for the item
+                    ->getStateUsing(fn ($record) => ($record->quantity * $record->product->price) / 100)
+                    ->money()
+                    ->label('Subtotal'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                // No header actions for read-only
+                Tables\Actions\CreateAction::make(), // Enabled
             ])
             ->actions([
-                // No actions for read-only
+                Tables\Actions\EditAction::make(), // Enabled
+                Tables\Actions\DeleteAction::make(), // Enabled
             ])
             ->bulkActions([
-                // No bulk actions for read-only
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(), // Enabled
+                ]),
             ]);
     }
 }

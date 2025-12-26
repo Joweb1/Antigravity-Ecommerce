@@ -53,7 +53,8 @@ class ProductResource extends Resource
                     ->nullable()
                     ->image()
                     ->disk('public') // Use the public disk
-                    ->directory('product-images'),
+                    ->directory('product-images')
+                    ->visibility('public'), // Explicitly set visibility for Filament preview
             ]);
     }
 

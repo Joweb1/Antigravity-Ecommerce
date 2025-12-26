@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CartResource\Pages;
 use App\Filament\Resources\CartResource\RelationManagers;
 use App\Models\Cart;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions; // Use Actions as a whole
 
 class CartResource extends Resource
 {
@@ -24,7 +27,11 @@ class CartResource extends Resource
     {
         return $form
             ->schema([
-                // No form fields as it's read-only
+                Select::make('user_id')
+                    ->relationship('user', 'name') // Assuming 'name' is the user's name field
+                    ->required()
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 
@@ -34,6 +41,13 @@ class CartResource extends Resource
             ->columns([
                 TextColumn::make('user.name')
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('cartItems_count') // Added
+                    ->counts('cartItems')
+                    ->label('Items in Cart'), // Added
+                TextColumn::make('total_price') // Added
+                    ->money() // Formats as currency
+                    ->label('Total Price')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -48,10 +62,13 @@ class CartResource extends Resource
                 //
             ])
             ->actions([
-                // No actions for read-only
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                // No bulk actions for read-only
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -66,7 +83,8 @@ class CartResource extends Resource
     {
         return [
             'index' => Pages\ListCarts::route('/'),
-            // Removed create and edit pages for read-only resource
+            'create' => Pages\CreateCart::route('/create'), // Enabled
+            'edit' => Pages\EditCart::route('/{record}/edit'), // Enabled
         ];
     }
 }

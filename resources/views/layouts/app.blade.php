@@ -61,7 +61,7 @@
                 ANTI<span class="text-theme-accent">GRAVITY</span>
             </a>
             <div class="flex items-center gap-8">
-                <a href="{{ route('shop') }}" class="text-[10px] uppercase tracking-widest font-bold hover:text-theme-accent transition flex items-center space-x-1">
+                <a href="{{ route('shop') }}" wire:navigate class="text-[10px] uppercase tracking-widest font-bold hover:text-theme-accent transition flex items-center space-x-1">
                     <span class="material-icons-outlined text-base">storefront</span>
                     <span>Shop</span>
                 </a>
@@ -76,7 +76,7 @@
                         <livewire:profile-dropdown />
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="hover:opacity-80 transition">
+                    <a href="{{ route('login') }}" wire:navigate class="hover:opacity-80 transition">
                         <span class="p-2 bg-theme-bg/30 backdrop-blur-sm rounded-full border border-theme-border">
                             <span class="material-icons-outlined text-base">login</span>
                         </span>

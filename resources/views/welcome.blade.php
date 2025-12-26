@@ -21,7 +21,7 @@
                     Welcome to Antigravity, where the future of commerce is now. Explore our curated selection of cutting-edge technology and redefine what's possible.
                 </p>
                 <div id="hero-cta" class="mt-10">
-                    <a href="{{ route('shop') }}"
+                    <a href="{{ route('shop') }}" wire:navigate
                        class="inline-flex items-center space-x-2 rounded-full border border-theme-accent/50 bg-theme-bg/50 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-theme-accent/80 hover:shadow-theme-accent/20 focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-theme-bg"
                        wire:navigate>
                         <span class="material-icons-outlined">shopping_bag</span>
@@ -84,14 +84,6 @@
             <div class="container mx-auto px-4">
                 <h2 class="font-orbitron text-4xl font-bold text-theme-text text-center mb-12">Featured Creations</h2>
                 <livewire:featured-products />
-                <div class="text-center mt-12">
-                    <a href="{{ route('shop') }}"
-                       class="inline-flex items-center space-x-2 rounded-full border border-theme-accent/50 bg-theme-bg/50 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-theme-accent/80 hover:shadow-theme-accent/20 focus:outline-none focus:ring-2 focus:ring-theme-accent focus:ring-offset-2 focus:ring-offset-theme-bg"
-                       wire:navigate>
-                        <span>View All Products</span>
-                        <span class="material-icons-outlined">arrow_forward</span>
-                    </a>
-                </div>
             </div>
         </div>
 
@@ -127,7 +119,7 @@
         <script>
             gsap.registerPlugin(ScrollTrigger);
 
-            document.addEventListener('livewire:navigated', () => {
+            document.addEventListener('DOMContentLoaded', () => {
                 // Animate hero section
                 gsap.from("#hero-title", { duration: 1.2, y: 40, opacity: 0, ease: "power4.out" });
                 gsap.from("#hero-subtitle", { duration: 1.2, y: 20, opacity: 0, ease: "power4.out", delay: 0.2 });
@@ -171,7 +163,6 @@
                     },
                     duration: 1,
                     y: 50,
-                    opacity: 0,
                     stagger: 0.15,
                     ease: "power4.out"
                 });

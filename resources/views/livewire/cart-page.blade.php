@@ -95,7 +95,7 @@
     @else
         <div class="text-center py-16 bg-theme-bg/50 border border-theme-border rounded-lg">
             <p class="text-xl text-theme-text/70">Your cart is empty.</p>
-            <a href="{{ route('shop') }}" class="mt-6 inline-block rounded-md border border-transparent bg-theme-accent px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-theme-accent/80">
+            <a href="{{ route('shop') }}" wire:navigate class="mt-6 inline-block rounded-md border border-transparent bg-theme-accent px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-theme-accent/80">
                 Continue Shopping
             </a>
         </div>

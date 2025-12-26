@@ -20,5 +20,11 @@ class Cart extends Model
     public function cartItems(): HasMany
     {
         return $this->hasMany(CartItem::class);
+    } 
+    public function getTotalPriceAttribute(): float
+    {
+        return $this->cartItems->sum(function ($cartItem) {
+            return $cartItem->quantity * $cartItem->product->price;
+        }) / 100; // Assuming price is stored in cents
     }
 }

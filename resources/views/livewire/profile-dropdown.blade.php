@@ -33,7 +33,7 @@
 
         <div class="border-t border-theme-border my-1"></div>
 
-        <a href="{{ route('home') }}"
+        <a href="{{ route('home') }}" wire:navigate
            class="block w-full px-4 py-2 text-left text-sm text-theme-text hover:bg-theme-accent/10"
            role="menuitem"
            wire:navigate
@@ -41,7 +41,7 @@
             Home
         </a>
 
-        <a href="{{ route('dashboard') }}"
+        <a href="{{ route('dashboard') }}" wire:navigate
            class="block w-full px-4 py-2 text-left text-sm text-theme-text hover:bg-theme-accent/10"
            role="menuitem"
            wire:navigate
@@ -49,7 +49,7 @@
             Dashboard
         </a>
 
-        <a href="{{ route('profile') }}"
+        <a href="{{ route('profile') }}" wire:navigate
            class="block w-full px-4 py-2 text-left text-sm text-theme-text hover:bg-theme-accent/10"
            role="menuitem"
            wire:navigate

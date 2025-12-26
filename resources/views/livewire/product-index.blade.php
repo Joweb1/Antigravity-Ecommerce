@@ -37,11 +37,10 @@
                      x-transition:enter-start="opacity-0 transform translate-y-5"
                      x-transition:enter-end="opacity-100 transform translate-y-0"
                      style="transition-delay: {{ $loop->index * 50 }}ms;"
-                     class="open-product-modal product-item group relative border border-theme-border rounded-lg overflow-hidden bg-theme-bg/50 backdrop-blur-sm transition-all duration-300 ease-in-out hover:border-theme-accent hover:shadow-2xl hover:shadow-theme-accent/10 cursor-pointer @if($layout === 'list') flex @endif"
-                     data-product-id="{{ $product->id }}">
+                     class="product-item group relative border border-theme-border rounded-lg overflow-hidden bg-theme-bg/50 backdrop-blur-sm transition-all duration-300 ease-in-out hover:border-theme-accent hover:shadow-2xl hover:shadow-theme-accent/10 @if($layout === 'list') flex @endif">
 
                     {{-- Image container --}}
-                    <div class="relative overflow-hidden @if($layout === 'grid') h-60 w-full @else h-32 w-32 flex-shrink-0 @endif">
+                    <div class="open-product-modal cursor-pointer relative overflow-hidden @if($layout === 'grid') h-60 w-full @else h-32 w-32 flex-shrink-0 @endif" data-product-id="{{ $product->id }}">
                         <div x-show="!imageLoaded" class="absolute inset-0 bg-black shimmer-bg">                            {{-- No text --}}
                         </div>
                         @if($product->image_path)
@@ -63,9 +62,11 @@
 
                     {{-- Details container --}}
                     <div class="p-4 flex flex-col flex-grow">
-                        <h2 class="text-lg font-semibold text-theme-text truncate group-hover:text-theme-accent transition-colors duration-300">
-                            {{ $product->name }}
-                        </h2>
+                        <a class="open-product-modal cursor-pointer" data-product-id="{{ $product->id }}">
+                            <h2 class="text-lg font-semibold text-theme-text truncate group-hover:text-theme-accent transition-colors duration-300">
+                                {{ $product->name }}
+                            </h2>
+                        </a>
                         
                         @if ($layout === 'list')
                             <p class="text-sm text-theme-text/70 mt-2 flex-grow">{{ Str::limit($product->description, 100) }}</p>

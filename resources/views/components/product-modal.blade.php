@@ -1,8 +1,8 @@
 <div id="product-display-modal"
-     class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm"
+     class="fixed inset-0 z-[99999] flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm"
      x-data="{ open: false }"
      x-show="open"
-     x-on:open-product-modal.window="open = true; document.body.classList.add('overflow-hidden')"
+     x-on:open-product-modal.window="console.log('Alpine: Received open-product-modal event!'); open = true; document.body.classList.add('overflow-hidden')"
      x-on:close-product-modal.window="open = false; document.body.classList.remove('overflow-hidden')"
      x-on:keydown.escape.window="open = false; document.body.classList.remove('overflow-hidden')"
 >
@@ -13,7 +13,7 @@
          x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-         class="relative bg-theme-bg/90 border border-theme-border rounded-lg shadow-2xl overflow-hidden w-full max-w-4xl max-h-[90vh] mx-4 p-6 text-theme-text flex flex-col md:flex-row gap-6"
+         class="relative bg-theme-bg/90 border border-theme-border rounded-lg shadow-2xl overflow-hidden w-full max-w-sm sm:max-w-xl md:max-w-4xl max-h-[90vh] p-4 sm:p-6 text-theme-text flex flex-col md:flex-row gap-4 sm:gap-6"
          @click.away="$dispatch('close-product-modal')"
     >
         {{-- Close button --}}
@@ -25,7 +25,7 @@
 
         {{-- Product Image Carousel --}}
         <div class="w-full md:w-1/2 flex-shrink-0 relative">
-            <div id="modal-product-image-carousel" class="relative w-full h-80 bg-black shimmer-bg rounded-lg overflow-hidden">
+            <div id="modal-product-image-carousel" class="relative w-full h-64 sm:h-80 bg-black shimmer-bg rounded-lg overflow-hidden">
                 {{-- Images will be injected here by JavaScript --}}
                 <div class="absolute inset-0 flex items-center justify-center text-theme-text/50" id="modal-no-image-placeholder">
                     No Image Available

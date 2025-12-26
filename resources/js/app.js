@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (productCard) {
             const productId = productCard.dataset.productId;
             if (productId) {
+                console.log('JS: Dispatching open-product-modal with productId:', productId);
                 dispatchEvent('open-product-modal', { productId: productId });
             }
         }
