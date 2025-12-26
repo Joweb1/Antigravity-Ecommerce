@@ -27,8 +27,15 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     libzip-dev \
-    postgresql-dev \
-    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql zip
+    sqlite3-dev \
+    libxml2-dev \
+    oniguruma-dev \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_sqlite \
+    zip \
+    mbstring \
+    xml
 
 # Copy application code from composer stage
 COPY --from=composer /app/vendor /var/www/html/vendor
