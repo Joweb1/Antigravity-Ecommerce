@@ -56,7 +56,7 @@ RUN echo "APP_ENV=production" > ../laravel-app/.env && \
 # 10. Permissions and Storage Linking
 # Fix permissions for the app code
 RUN chown -R www-data:www-data /var/www/laravel-app \
-    && chown -R www-data:www-data /var/w ww/html
+    && chown -R www-data:www-data /var/www/html
 
 # Set directory permissions to 755 and files to 644
 RUN find /var/www/laravel-app -type d -exec chmod 755 {} + \
