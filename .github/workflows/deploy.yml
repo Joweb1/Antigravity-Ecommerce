@@ -2,8 +2,9 @@ name: Build and Deploy to Render Branch
 
 on:
   push:
-    branches: [ "main" ] # Runs when you push to main
+    branches: [ "main" ]
 
+# Grant permission to push to the repository
 permissions:
   contents: write
 
@@ -12,69 +13,65 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout Code
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Setup PHP
+    # Setup PHP 8.4
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.4'
-        extensions: mbstring, xml, bcmath, zip, gd
+        extensions: mbstring, xml, bcmath, zip, gd, sqlite3
         tools: composer:v2
 
-    # 3. Setup Node.js
+    # Setup Node 24
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: '24'
 
-    # 4. Install PHP Dependencies (Production)
     - name: Install Composer Dependencies
       run: composer install --no-ansi --no-interaction --no-progress --no-dev --optimize-autoloader
 
-    # 5. Install Node Dependencies and Build
     - name: Install NPM and Build
       run: |
         npm ci
         npm run build
-        # We remove node_modules to keep the zip file small (assets are already compiled)
         rm -rf node_modules
 
-    # 6. Zip the Application
+    # NEW: Setup SQLite and Run Migrations
+    - name: Setup SQLite and Migrate
+      run: |
+        # Create the database file if it doesn't exist
+        if [ ! -f database/database.sqlite ]; then
+            touch database/database.sqlite
+        fi
+        
+        # Run migration using the absolute path or relative path
+        # We force it because we are in 'production' mode essentially
+        php artisan migrate --force --database=sqlite
+
     - name: Create Project Archive
       run: |
-        # Zip everything in the current folder into release.zip
-        # -r: recursive
-        # -q: quiet
-        # -x: exclude .git folder and the git files
+        # Zip everything, including the now migrated database.sqlite
         zip -r -q release.zip . -x ".git/*" ".github/*"
 
-    # 7. Prepare Deployment Branch
     - name: Push to Deploy Branch
       run: |
-        # Configure Git
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         
-        # Create a temporary directory for the deploy artifact
         mkdir deploy_artifact
-        
-        # Move the Zip and the Dockerfile to the artifact folder
         mv release.zip deploy_artifact/
         cp Dockerfile deploy_artifact/
         
-        # Initialize a new git repo in the artifact folder
         cd deploy_artifact
         git init
         git checkout -b deploy
         
-        # Add files and commit
         git add .
         git commit -m "Deploy: Build $(date +'%Y-%m-%d %H:%M:%S')"
         
-        # Force push to the deploy branch on the origin
-        # We use the GITHUB_TOKEN provided by Actions
+        # Push to the deploy branch
         git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         git push origin deploy --force
