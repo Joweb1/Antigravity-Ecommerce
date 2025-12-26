@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Production image (Apache)
-FROM php:8.3-apache # Using 8.3 for consistency
+FROM php:8.3-apache
 
 WORKDIR /var/www/html
 
