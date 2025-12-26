@@ -1,46 +1,75 @@
-FROM richarvey/nginx-php-fpm:8.3
+# Dockerfile
+FROM php:8.2-apache
 
-# Set working directory
+# 1. Install system dependencies and unzip (crucial for unpacking the artifact)
+RUN apt-get update && apt-get install -y \
+    unzip \
+    libzip-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 2. Install PHP extensions
+# Using the standard mlocati installer script
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions
+RUN install-php-extensions gd mbstring xml zip pdo_mysql opcache
+
+# 3. Configure Apache to allow .htaccess rewrites
+RUN a2enmod rewrite
+
+# 4. Setup Working Directory
+# We will use /var/www as the base. 
+# Apache looks at /var/www/html by default.
+WORKDIR /var/www
+
+# 5. Copy the Zipped Project from the build context
+# The CI/CD pipeline will place 'release.zip' here
+COPY release.zip .
+
+# 6. Unzip and Setup "Shared Hosting" Structure
+# We unzip into 'laravel-app' folder, parallel to 'html'
+RUN unzip release.zip -d laravel-app && \
+    rm release.zip
+
+# 7. Move Public files to Main Directory (Apache Root)
+# Clean default html folder
+RUN rm -rf html/*
+# Move contents of public to html
+RUN cp -r laravel-app/public/* html/
+# Ensure .htaccess is moved (cp -r usually catches it, but explicit checks are safer)
+RUN cp laravel-app/public/.htaccess html/
+
+# 8. Modify index.php to point to the new paths
+# We use sed to replace the relative paths to point up one level into 'laravel-app'
 WORKDIR /var/www/html
 
-# Image config
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+RUN sed -i "s|require __DIR__.'/../vendor/autoload.php';|require __DIR__.'/../laravel-app/vendor/autoload.php';|g" index.php && \
+    sed -i "s|\$app = require_once __DIR__.'/../bootstrap/app.php';|\$app = require_once __DIR__.'/../laravel-app/bootstrap/app.php';|g" index.php
 
-# Copy composer files first to leverage Docker cache
-COPY composer.json composer.lock ./
+# 9. Create Production .env
+# NOTE: It is better security practice to use Environment Variables injected by Render.
+# However, this creates the file as requested.
+RUN echo "APP_ENV=production" > ../laravel-app/.env && \
+    echo "APP_DEBUG=false" >> ../laravel-app/.env && \
+    echo "APP_URL=https://www.yourdomain.com" >> ../laravel-app/.env && \
+    echo "LOG_CHANNEL=stderr" >> ../laravel-app/.env
 
-# Install Composer dependencies
-# Use --ignore-platform-reqs as previously determined for build issues
-# Use -vvv for verbose output if still debugging composer issues
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs -vvv
+# 10. Permissions and Storage Linking
+# Fix permissions for the app code
+RUN chown -R www-data:www-data /var/www/laravel-app \
+    && chown -R www-data:www-data /var/w ww/html
 
-# Copy the rest of the application code
-COPY . .
+# Set directory permissions to 755 and files to 644
+RUN find /var/www/laravel-app -type d -exec chmod 755 {} + \
+    && find /var/www/laravel-app -type f -exec chmod 644 {} +
 
-# Ensure storage and bootstrap/cache permissions
-# This should happen after all code is copied
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Link the storage folder (Simulating 'php artisan storage:link' but manually for this structure)
+# We link html/storage -> ../laravel-app/storage/app/public
+RUN rm -rf /var/www/html/storage && \
+    ln -s /var/www/laravel-app/storage/app/public /var/www/html/storage
 
-# Run Laravel artisan commands
-# These are typically run once during build for optimization
-# Use the commands from 00-laravel-deploy.sh
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan migrate --force
+# 11. Final Apache Permissions
+RUN chown -h www-data:www-data /var/www/html/storage
 
-# Note: The richarvey/nginx-php-fpm image automatically starts Nginx and PHP-FPM
-# The `CMD ["/start.sh"]` from the base image is suitable.
-# The 00-laravel-deploy.sh script is no longer run directly by Dockerfile RUN.
-# If parts of it still need to run at container startup, they should be integrated
-# with the base image's entrypoint mechanism, possibly by placing it in a specific
-# directory that /start.sh monitors. For now, moving build-time steps to RUN.
+EXPOSE 80
+
+CMD ["apache2-foreground"]

@@ -1,0 +1,77 @@
+name: Build and Deploy to Render Branch
+
+on:
+  push:
+    branches: [ "main" ] # Runs when you push to main
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout Code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Setup PHP
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, bcmath, zip, gd
+        tools: composer:v2
+
+    # 3. Setup Node.js
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '24'
+
+    # 4. Install PHP Dependencies (Production)
+    - name: Install Composer Dependencies
+      run: composer install --no-ansi --no-interaction --no-progress --no-dev --optimize-autoloader
+
+    # 5. Install Node Dependencies and Build
+    - name: Install NPM and Build
+      run: |
+        npm ci
+        npm run build
+        # We remove node_modules to keep the zip file small (assets are already compiled)
+        rm -rf node_modules
+
+    # 6. Zip the Application
+    - name: Create Project Archive
+      run: |
+        # Zip everything in the current folder into release.zip
+        # -r: recursive
+        # -q: quiet
+        # -x: exclude .git folder and the git files
+        zip -r -q release.zip . -x ".git/*" ".github/*"
+
+    # 7. Prepare Deployment Branch
+    - name: Push to Deploy Branch
+      run: |
+        # Configure Git
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        
+        # Create a temporary directory for the deploy artifact
+        mkdir deploy_artifact
+        
+        # Move the Zip and the Dockerfile to the artifact folder
+        mv release.zip deploy_artifact/
+        cp Dockerfile deploy_artifact/
+        
+        # Initialize a new git repo in the artifact folder
+        cd deploy_artifact
+        git init
+        git checkout -b deploy
+        
+        # Add files and commit
+        git add .
+        git commit -m "Deploy: Build $(date +'%Y-%m-%d %H:%M:%S')"
+        
+        # Force push to the deploy branch on the origin
+        # We use the GITHUB_TOKEN provided by Actions
+        git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git push origin deploy --force
