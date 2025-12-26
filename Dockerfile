@@ -26,16 +26,10 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
     nginx \
     supervisor \
-    libzip-dev \
-    sqlite-dev \
-    libxml2-dev \
-    libonig-dev \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_sqlite \
-    zip \
-    mbstring \
-    xml
+    php83-pdo_sqlite \
+    php83-zip \
+    php83-mbstring \
+    php83-xml
 
 # Copy application code from composer stage
 COPY --from=composer /app/vendor /var/www/html/vendor
