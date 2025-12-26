@@ -42,7 +42,7 @@
 
                     {{-- Image container --}}
                     <div class="relative overflow-hidden @if($layout === 'grid') h-60 w-full @else h-32 w-32 flex-shrink-0 @endif">
-                                                <div x-show="!imageLoaded" class="absolute inset-0 bg-black shimmer-bg">                            {{-- No text --}}
+                        <div x-show="!imageLoaded" class="absolute inset-0 bg-black shimmer-bg">                            {{-- No text --}}
                         </div>
                         @if($product->image_path)
                             <img x-show="imageLoaded"
