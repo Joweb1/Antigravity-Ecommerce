@@ -17,7 +17,7 @@ FROM dunglas/frankenphp
 
 WORKDIR /app
 
-# Install PHP Extensions
+# 1. Install PHP Extensions
 RUN install-php-extensions \
     pdo_mysql \
     gd \
@@ -26,24 +26,27 @@ RUN install-php-extensions \
     opcache \
     bcmath
 
-# Copy Application Code
+# 2. Copy Application Code
 COPY . .
 COPY --from=composer /app/vendor /app/vendor
 COPY --from=node /app/public/build /app/public/build
 
-# Configuration
-ENV COMPOSER_HOME="/tmp"
-ENV SERVER_NAME=":80"
+# 3. Render-Specific Configuration
+# Render uses port 10000 by default.
+# We set SERVER_NAME to :10000 to tell FrankenPHP to listen there.
+ENV SERVER_NAME=":10000"
 ENV DOCUMENT_ROOT="/app/public"
 
-# Permissions
+# 4. Permissions
 RUN chmod -R 777 storage bootstrap/cache
 
-# Production Optimizations
+# 5. Production Optimizations
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN php artisan package:discover --ansi
 
-# --- THE FIX IS HERE ---
-# We use CMD instead of ENTRYPOINT. 
-# This preserves the base image's permission setup script.
+# 6. Start Command
+# We rely on the default entrypoint but override the command.
+# EXPOSE helps Render detect the port automatically.
+EXPOSE 10000
+
 CMD ["frankenphp", "php-server"]
