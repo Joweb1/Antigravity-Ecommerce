@@ -39,17 +39,16 @@ jobs:
         npm run build
         rm -rf node_modules
 
-    # NEW: Setup SQLite and Run Migrations
-    - name: Setup SQLite and Migrate
+    - name: Setup Environment and Database
       run: |
-        # Create the database file if it doesn't exist
-        if [ ! -f database/database.sqlite ]; then
-            touch database/database.sqlite
-        fi
+        # Create .env file and generate app key
+        cp .env.example .env
+        php artisan key:generate
+        # Create the database file
+        touch database/database.sqlite
         
-        # Run migration using the absolute path or relative path
-        # We force it because we are in 'production' mode essentially
-        php artisan migrate --force --database=sqlite
+        # Run migrations
+        php artisan migrate --force
 
     - name: Create Project Archive
       run: |
