@@ -30,6 +30,9 @@ COPY release.zip .
 RUN unzip release.zip -d laravel-app && \
     rm release.zip
 
+# Create the SQLite database file so it exists for the application
+RUN touch /var/www/laravel-app/database/database.sqlite
+
 # 7. Move Public files to Main Directory (Apache Root)
 # Clean default html folder
 RUN rm -rf html/*
