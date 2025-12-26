@@ -27,9 +27,9 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     libzip-dev \
-    sqlite3-dev \
+    sqlite-dev \
     libxml2-dev \
-    oniguruma-dev \
+    libonig-dev \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_sqlite \
