@@ -6,7 +6,7 @@ WORKDIR /app
 ENV COMPOSER_MEMORY_LIMIT=-1
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs -vvv
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs -vvv --no-scripts
 
 # Stage 2: Install Node.js dependencies and build frontend assets
 FROM node:21 as node
@@ -47,6 +47,15 @@ COPY --from=node /app/routes /var/www/html/routes
 COPY --from=node /app/storage /var/www/html/storage
 COPY --from=node /app/artisan /var/www/html/artisan
 COPY --from=node /app/.env.example /var/www/html/.env.example # Render will use its own .env
+
+# Run Composer and Artisan scripts that were skipped earlier
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative \
+    && php artisan optimize:clear \
+    && php artisan view:clear \
+    && php artisan route:clear \
+    && php artisan config:clear \
+    && php artisan event:clear \
+    && php artisan package:discover --ansi --no-interaction
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage \
