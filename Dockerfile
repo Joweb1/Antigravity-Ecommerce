@@ -1,14 +1,14 @@
-# Stage 1: Build assets and install PHP dependencies
+# Stage 1: Composer dependencies
 FROM composer:2.7 as composer
 
 WORKDIR /app
 
 ENV COMPOSER_MEMORY_LIMIT=-1
-
+# Use --no-scripts to prevent early execution of Laravel/Composer scripts
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs -vvv --no-scripts
 
-# Stage 2: Install Node.js dependencies and build frontend assets
+# Stage 2: Node.js dependencies and asset build
 FROM node:21 as node
 
 WORKDIR /app
@@ -19,19 +19,27 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 3: Production image
-FROM php:8.3-fpm-alpine
+# Stage 3: Production image (Apache)
+FROM php:8.3-apache # Using 8.3 for consistency
 
 WORKDIR /var/www/html
 
-# Install PHP extensions
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    php83-pdo_sqlite \
-    php83-zip \
-    php83-mbstring \
-    php83-xml
+# Install the helper script for PHP extensions
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/download/2.2.0/install-php-extensions /usr/local/bin/install-php-extensions
+RUN chmod +x /usr/local/bin/install-php-extensions
+
+# Install commonly required PHP extensions
+RUN install-php-extensions gd mbstring xml zip pdo_sqlite
+
+# Enable Apache's rewrite module
+RUN a2enmod rewrite
+
+# Remove default Apache virtual host
+RUN rm /etc/apache2/sites-enabled/000-default.conf
+
+# Add custom Apache virtual host for Laravel
+COPY docker/apache-laravel.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default.conf
 
 # Copy application code from composer stage
 COPY --from=composer /app/vendor /var/www/html/vendor
@@ -63,16 +71,5 @@ RUN chown -R www-data:www-data /var/www/html/storage \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Copy custom Nginx configuration
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy Supervisor configuration
-COPY docker/supervisord.conf /etc/supervisord.conf
-
-# Expose port 80 for Nginx
+# Expose port 80 for Apache
 EXPOSE 80
-
-# Start PHP-FPM and Nginx using Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
-
-
