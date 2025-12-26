@@ -72,7 +72,7 @@ const productModal = {
         this.currentImageIndex = 0; // Reset carousel index
 
         this.showLoadingState();
-        dispatchEvent('open-product-modal'); // Open modal with loading state
+        // dispatchEvent('open-product-modal'); // Removed: Open modal with loading state
 
         try {
             const response = await fetch(`/products/${productId}`);
@@ -141,7 +141,6 @@ const productModal = {
         this.modalCarouselDots.innerHTML = ''; // Clear previous dots
 
         // For now, product data only has one image_path. If it had an array, we'd loop.
-        // Assuming 'p' is already set from productData
         const p = this.productData;
         const images = p && p.image_path ? [p.image_path] : [];
 

@@ -20,6 +20,6 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-Route::get('/products/{product}', [App\Http\Controllers\Controller::class, 'showJson'])->name('products.showJson');
+Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'showJson'])->name('products.showJson');
 
 require __DIR__.'/auth.php';
