@@ -52,7 +52,7 @@ RUN sed -i "s|require __DIR__.'/../vendor/autoload.php';|require __DIR__.'/../la
 # However, this creates the file as requested.
 RUN echo "APP_ENV=production" > ../laravel-app/.env && \
     echo "APP_DEBUG=false" >> ../laravel-app/.env && \
-    echo "APP_URL=https://www.yourdomain.com" >> ../laravel-app/.env && \
+    echo "APP_URL=https://antigravity-ecommerce-ql94.onrender.com" >> ../laravel-app/.env && \
     echo "LOG_CHANNEL=stderr" >> ../laravel-app/.env
 
 # 10. Permissions and Storage Linking
@@ -73,6 +73,10 @@ RUN rm -rf /var/www/html/storage && \
 
 # 11. Final Apache Permissions
 RUN chown -h www-data:www-data /var/www/html/storage
+
+# Final permissions fix for Laravel Storage and Cache
+RUN chown -R www-data:www-data /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache \
+    && chmod -R 775 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache
 
 EXPOSE 80
 
