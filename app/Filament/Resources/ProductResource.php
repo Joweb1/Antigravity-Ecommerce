@@ -52,7 +52,8 @@ class ProductResource extends Resource
                 FileUpload::make('image_path')
                     ->nullable()
                     ->image()
-                    ->disk('product_images') // Use the new product_images disk
+                    ->disk('public') // Use the public disk
+                    ->directory('product-images')
                     ->visibility('public'), // Explicitly set visibility for Filament preview
             ]);
     }
@@ -62,7 +63,7 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('image_path')
-                    ->disk('product_images') // Use the new product_images disk
+                    ->disk('public') // Use the public disk
                     ->circular(),
                 TextColumn::make('name')
                     ->searchable()
