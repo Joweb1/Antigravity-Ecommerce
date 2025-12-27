@@ -76,7 +76,7 @@ RUN chown -h www-data:www-data /var/www/html/storage
 
 # Final permissions fix for Laravel Storage and Cache
 RUN chown -R www-data:www-data /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache \
-    && chmod -R 775 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache
+    && chmod -R 777 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache
 
 EXPOSE 80
 
