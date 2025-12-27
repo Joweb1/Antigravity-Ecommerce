@@ -47,8 +47,9 @@ jobs:
         # Create the database file
         touch database/database.sqlite
         
-        # Run migrations
+        # Run migrations and seeders
         php artisan migrate --force
+        php artisan db:seed --force
 
     - name: Create Project Archive
       run: |

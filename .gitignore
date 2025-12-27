@@ -20,3 +20,11 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# --- Custom Additions ---
+# The following line explicitly includes the 'product-images' directory within storage/app/public/
+# This is to ensure product images are pushed to GitHub as requested.
+# Be aware that committing user-uploaded or generated files directly to version control
+# is generally not recommended for production environments. Consider persistent storage
+# solutions (e.g., S3, Render Persistent Disks) for user-generated content.
+!/storage/app/public/product-images/
