@@ -66,15 +66,12 @@ RUN find /var/www/laravel-app -type d -exec chmod 755 {} + \
 
 
 
-# Link the storage folder (Simulating 'php artisan storage:link' but manually for this structure)
-# We link html/storage -> ../laravel-app/storage/app/public
-RUN rm -rf /var/www/html/storage && \
-    ln -s /var/www/laravel-app/storage/app/public /var/www/html/storage
+# Create public directory for product images and set permissions
+RUN mkdir -p /var/www/html/storage/product-images
+RUN chown -R www-data:www-data /var/www/html/storage
+RUN chmod -R 777 /var/www/html/storage
 
-# 11. Final Apache Permissions
-RUN chown -h www-data:www-data /var/www/html/storage
-
-# Final permissions fix for Laravel Storage and Cache
+# Also ensure the laravel-side storage is writable for any other operations
 RUN chown -R www-data:www-data /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache \
     && chmod -R 777 /var/www/laravel-app/storage /var/www/laravel-app/bootstrap/cache
 
