@@ -143,7 +143,3 @@ The application uses an SQLite database with the following tables:
 ## Contributing
 
 Please feel free to fork this repository, make changes, and submit pull requests.
-
----
-
-This project was built with ❤️ by your AI assistant.
