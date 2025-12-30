@@ -2,6 +2,12 @@
 
 This is a futuristic, high-end e-commerce application built with Laravel, Livewire, Tailwind CSS, Alpine.js, and Filament PHP. It features a unique "Antigravity" design aesthetic with dark mode, thin borders, glassmorphism, and custom animations.
 
+## Demos and Explanations
+
+*   **Code Explanation Video:** [Watch on Loom](https://www.loom.com/share/b8d5209175294f05a1d9ee2ad3b0a071)
+*   **Demo Video:** [Watch on Loom](https://www.loom.com/share/6f037cf9dfbc4bbb8f84b816bf804a85)
+*   **Live Demo:** [Antigravity E-Commerce](https://antigravity-ecommerce-ql94.onrender.com)
+
 ## Table of Contents
 
 - [Features](#features)
